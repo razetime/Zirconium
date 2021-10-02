@@ -28,6 +28,7 @@
 Split ← (⊢-˜+`×¬)∘=⊔⊢
 TwoD ← /○⥊⟜↕⟜≢ # 2D version of monadic /
 _while_ ← {𝔽⍟𝔾∘𝔽_𝕣_𝔾∘𝔽⍟𝔾𝕩}
+Diff ← ¬∘∊/⊣
 
 # Hello World program for test
 test ←"    ======================================
@@ -44,13 +45,23 @@ grid ← >{(⌈´≠¨𝕩)↑¨𝕩}(@+10) Split test # program grid. This will
 stations ← ⟨⟩
 
 # Zone detection via flood fill
-# TODO: pad inds with zeroes on all sides
-•Show inds ← {<(' '=⊑𝕩) ∧ 2≤+´"[="∊˜0‿1‿3⊏𝕩}∘⥊⎉2 3‿3 ↕ grid
-•Show ≢ grid
-•Show ≢ inds
-#curr ← ⊑inds
+# pad inds with zeroes on all sides
+•Show inds ← TwoD •Show {¯1‿¯1⌽(2+≢𝕩)↑𝕩}{<(¬⊑"[="∊˜⊑𝕩)∧2≤+´"[="∊˜0‿1‿3⊏𝕩}∘⥊⎉2 3‿3 ↕ grid
+dels ← ⟨0‿¯1, 1‿0, 0‿1⟩
+zones ← ⟨⟩ # Holds all zone points.
 
-
-
-# Exclusion zone forming function
-# Takes two char arguments and a grid, spits out all the regions
+{
+  zone ← ⟨⟩
+  corner ← ⊑𝕩
+  {
+    zone ∾↩ 𝕩
+    •Show new ← ⍷∾{dels +<𝕩}¨𝕩
+    ("Invalid station with top left corner"∾○<corner)!¬∨´∨´¨(<≢ grid)= new
+    new /˜↩ ¬"=[]" ∊˜ new ⊑¨< grid
+    •Show new
+    new Diff zone
+  } _while_ { 0≠≠𝕩 } ⟨corner⟩
+  zones ∾↩ ⟨zone⟩
+  𝕩 Diff zone
+} _while_ { 0≠≠𝕩 } inds
+•Show zone
