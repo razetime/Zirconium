@@ -89,7 +89,7 @@ zoneCats ← FindZones¨ ⟨"~{}", "=[]"⟩
 
 # Exclusion zones:
 exSt ← "?!%&`_;"
-exFns ← ⟨{𝕨𝕊𝕩:@-˜⊑•GetLine@}, {"Program has ended."!𝕨>0}, {0⊣stdout∾↩@+256|𝕨}, {0⊣stderr∾↩@+256|𝕨}, {0⊣stdout∾←•Show 𝕨}, {𝕨𝕊𝕩:•BQN•GetLine@}, {0⊣•Delay 𝕨÷1000}⟩
+exFns ← ⟨{𝕨𝕊𝕩:@-˜⊑•GetLine@}, {"Program has ended."!𝕨>0}, {0⊣stdout∾↩@+256|𝕨}, {0⊣stderr∾↩@+256|𝕨}, {0⊣stdout∾↩•Show 𝕨}, {𝕨𝕊𝕩:•BQN•GetLine@}, {0⊣•Delay 𝕨÷1000}⟩
 
 
 
