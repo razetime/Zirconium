@@ -20,9 +20,9 @@
 #    ∘ ` ← If N>0, print N
 #    ∘ _ ← If N>0, dispatch •BQN•GetLine@ drones to all
 #    ∘ ; ← Pause program for N milliseconds
-#  ⌾ Synthetic Stations('[', '=', ']')
+#  ⌾ Synthetic Stations('[', '=', ']' and `(())`)
 #    Simplistic stack based language with N and K as args.
-#    Syntax: <letter> = <stack ops>
+#    Syntax: <char> = <stack ops>
 
 # Helpers:
 Split ← (⊢-˜+`×¬)∘=⊔⊢
@@ -41,18 +41,19 @@ test ←"    ======================================
 ((H=1N0=-72*)) ((d=1N0=-100*)) ((l=1N0=-108*))
 ((,=1N0=-44*)) ((r=1N0=-114*)) ((_=1N0=-32*))"
 
-station ← {
-  name ⇐ '0'
-  drones ⇐ 0
-  n ⇐ 0
-  k ⇐ 0
-  Func ⇐ 0⊸⊣
-}
-stdout ← ""
-stderr ← ""
+
+
 
 grid ← >{(⌈´≠¨𝕩)↑¨𝕩}(@+10) Split test # program grid. This will be modified later
-stations ← ⟨⟩
+
+# Values for the Program Graph
+names ← ⟨⟩
+dCounts ← ⟨⟩
+nVals ← ⟨⟩
+kVals ← ⟨⟩
+funcVals ← ⟨⟩
+stdout ← ""
+stderr ← ""
 
 # Pure stations:
 defSt ← ".o0OQ@"
@@ -123,7 +124,16 @@ StackLang ← {
   } tokens
 }
 
-{
+# Metropoleis data
+mtSt ← ""
+
+# reserved symbols
+forbidden ← exSt ∾ defSt ∾ "~[]={}-+|"
+
+mtFns ← {
+  "Lens Error: Invalid definition `" ∾ 𝕩 ∾ "'" ! ('='=1⊑𝕩) ∧ ¬𝕩∊ forbidden
+  forbidden ∾↩ ⊑𝕩
+  mtSt ∾↩ ⊑𝕩
   f ← StackLang 2↓𝕩
-  •Show ⟨𝕩, 0 F 0, F⟩  
+  f
 }¨lenses
