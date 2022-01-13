@@ -29,6 +29,7 @@ Split ← (⊢-˜+`×¬)∘=⊔⊢
 TwoD ← /○⥊⟜↕⟜≢ # 2D version of monadic /
 _while_ ← {𝔽⍟𝔾∘𝔽_𝕣_𝔾∘𝔽⍟𝔾𝕩}
 Diff ← ¬∘∊/⊣
+Inter ← ∊/⊣
 
 # Hello World program for test
 test ←"    ======================================
@@ -85,7 +86,7 @@ FindZones ← {
   } _while_ { 0≠≠𝕩 } inds
   zones
 }
-zoneCats ← FindZones¨ ⟨"~{}", "=[]"⟩
+exPts‿metPts ← FindZones¨ ⟨"~{}", "=[]"⟩
 # •Show zoneCats
 
 # Exclusion zones:
@@ -124,16 +125,47 @@ StackLang ← {
   } tokens
 }
 
-# Metropoleis data
+# Metropoleis mapping
 mtSt ← ""
-
-# reserved symbols
-forbidden ← exSt ∾ defSt ∾ "~[]={}-+|"
+reserve ← "~[]={}-+|/\"
 
 mtFns ← {
-  "Lens Error: Invalid definition `" ∾ 𝕩 ∾ "'" ! ('='=1⊑𝕩) ∧ ¬𝕩∊ forbidden
-  forbidden ∾↩ ⊑𝕩
+  ("Lens Error: Invalid definition '"∾𝕩∾"'")!('='=1⊑𝕩)∧⊑¬ reserve ∊˜ ⋈⊑𝕩
+  reserve ∾↩ ⊑𝕩
   mtSt ∾↩ ⊑𝕩
   f ← StackLang 2↓𝕩
   f
 }¨lenses
+
+
+metSts ← (TwoD grid∊mtSt) Inter ⊑metPts
+•Show grid
+
+deltas ← ⟨1‿1,1‿0,1‿¯1,0‿1,0‿¯1,¯1‿1,¯1‿0,¯1‿¯1⟩
+
+GetStations ← {
+  𝕊 points‿chars‿fns:
+  stations ← ⟨⟩
+  curr ← ⋈⊑points
+  { # get each station and put it in stations
+    𝕊𝕩:
+    cch ← curr⊑grid
+
+    { # Flood fill to bind stations together.
+      ngb ← (∾<˘deltas+⌜𝕩) Diff 𝕩
+      ngb ↩ (cch=ngb⊏grid) / ngb
+      curr ∾↩ ngb
+      ngb
+    } _while_ { 𝕩≢⟨⟩ } curr
+
+    { # Now get the connections.
+      (∾⟜"*[]={}~"¨⟨"\#", "|^", "/#", "->", "-<", "/#", "|v", "\#"⟩){𝕨∊˜𝕩⊏grid}¨deltas+<𝕩
+    }¨curr
+    stations ∾↩ ⟨cch, curr, (⊑cch⊐chars)⊑fns, 0, 0⟩
+    points ↩ points Diff curr
+
+    # reset curr for next iteration
+    curr ↩ ⊑points
+
+  } _while_ { 𝕊𝕩: points ≢ ⟨⟩}
+}
