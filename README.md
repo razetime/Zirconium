@@ -6,7 +6,8 @@ generally complicated, special case parsing requirements. However, it is still w
 expressive BQN can be under these constraints.
 
 This interpreter takes some liberties with interpreting the spec, and hence you may find some results strange.
-My main goal here is to make sure I can at the very least run the examples correctly.
+My main goal here is to make sure I can at the very least run the examples correctly. It may be more liberal than
+expected, and useful errors will be sparse.
 
 ## Running
 The interpreter is incomplete, and does not work on files yet.
