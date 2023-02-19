@@ -48,7 +48,7 @@ ILen←{
   tokens←{
     "+": +; "-": -; "*": ×; "/": ÷;
     "=": =; "N": 'n'; "K": 'k';
-    ∧´((𝕩≥'0')∧𝕩≤'9')?10⊸×⊸+´⌽𝕩-'0';
+    ∧´((𝕩≥'0')∧𝕩≤'9')?10⊸×⊸+´𝕩-'0';
     •Show"Invalid lens instruction '"∾𝕩∾"' in '"∾prg∾"'",•Exit@
   }¨prg⊔˜1-˜+`(prg∊"+-*/=")∨((⊢∧⊢≠»)prg∊'0'+↕10)∨prg∊"NK"
   # dzaima
@@ -68,81 +68,69 @@ Lens←{
   ⟨' '¨⌾((DI l)⊸⊑)𝕩,ILen¨"))(("SplitS 2↓¯2↓l/○⥊𝕩⟩
 }
 
-# zone finder (general)
-Zones←{
-  ⟨l‿t‿r,s,ex⟩ 𝕊 g:
+# zone + station finder (general)
+ZnS←{
+  ⟨l‿t‿r,s,f,ex⟩ 𝕊 g:
   ltr←l‿t‿r
   ret←⟨⟩
-  v←⟨⟩
   {
-    •Show "vz"⋈ vz←⋈⊑𝕩
+    vz←⋈⊑𝕩
     {
       vz∾↩i_←vz Diff˜{
         b←{(𝕩≥0)∧○(∧´)𝕩<≢g}¨𝕩
-        •Show (b/𝕩)/˜⟨r⊸≠,l⊸≠,¬·⊑∊⟜ltr,¬·⊑∊⟜ltr⟩{𝕎𝕩⊑g}¨○(b⊸/)𝕩
-      }(•Show ⊏𝕩)+⟨0‿1,0‿¯1,1‿0,¯1‿0⟩
+        (b/𝕩)/˜⟨r⊸≠,l⊸≠,¬·⊑∊⟜ltr,¬·⊑∊⟜ltr⟩{𝕎𝕩⊑g}¨○(b⊸/)𝕩
+      }(⊏𝕩)+⟨0‿1,0‿¯1,1‿0,¯1‿0⟩
       (1↓𝕩)∾i_
     }_while_(0<≠)⋈⊑𝕩
-    ret∾↩⟨vz⟩
+    ret∾↩vz
     𝕩 Diff vz
-  }_while_(0<≠)(DI •Show g∊s) Diff ex
-  ret
+  }_while_(0<≠)(DI g∊s) Diff ex
+  ret(∊⟜s⊑⟜g)⊸/↩
+  ret≍f⊏˜s⊐ret⊑g
 }
 
-# Values for the Program Graph
-names←⟨⟩
-dCounts←⟨⟩
-nVals←⟨⟩
-kVals←⟨⟩
-funcVals←⟨⟩
-stdout←""
-stderr←""
-
-# Pure stations:
-p←".o0OQ@"
-pF←⟨0>˜⊣, ⊣, 0⊸⊣, ⌊∘÷, 1-˜⊣, 0=⊣⟩
-
-# Exclusion zones:
+# zone function data
 e←"?!%&`_;"
 eF←⟨
-  {𝕨𝕊𝕩:@-˜⊑•GetLine@}
+  {𝕊:@-˜⊑•GetLine@}
   {"Program has ended."!𝕨>0}
   {0⊣stdout∾↩@+256|𝕨}
   {0⊣stderr∾↩@+256|𝕨}
   {0⊣stdout∾↩•Show 𝕨}
-  {𝕨𝕊𝕩:•BQN•GetLine@}
+  {𝕊:(∧´≥⊸'0'∧≤⟜'9')◶⟨
+      {•Show"Invalid number '"∾𝕩∾"'",•Exit@}
+      10⊸×⊸+´
+    ⟩•GetLine@
+  }
   {0⊣•Delay 𝕨÷1000}
 ⟩
-
-deltas←⟨1‿1,1‿0,1‿¯1,0‿1,0‿¯1,¯1‿1,¯1‿0,¯1‿¯1⟩
-
-GetStations←{
-  𝕊 points‿chars‿fns:
-  stations←⟨⟩
-  curr←⋈⊑points
-  { # get each station and put it in stations
-    𝕊𝕩:
-    cch←curr⊑grid
-
-    { # Flood fill to bind stations together.
-      ngb←(∾<˘deltas+⌜𝕩) Diff 𝕩
-      ngb ↩ (cch=ngb⊏grid) / ngb
-      curr ∾↩ ngb
-      ngb
-    } _while_ { 𝕩≢⟨⟩ } curr
-
-    { # Now get the connections.
-      (∾⟜"*[]={}~"¨⟨"\#", "|^", "/#", "->", "-<", "/#", "|v", "\#"⟩){𝕨∊˜𝕩⊏grid}¨deltas+<𝕩
-    }¨curr
-    stations ∾↩ ⟨cch, curr, (⊑cch⊐chars)⊑fns, 0, 0⟩
-     points ↩ points Diff curr
-
-    # reset curr for next iteration
-    curr ↩ ⊑points
-
-  } _while_ { 𝕊𝕩: points ≢ ⟨⟩}
+p←".o0OQ@"
+pF←⟨0>˜⊣, ⊣, 0⊸⊣, ⌊∘÷, 1-˜⊣, 0=⊣⟩
+# table of all stations in a grid, grouped together
+Stnst←{
+  ng‿l←Lens 𝕩
+  ls←⊑¨l
+  met←⟨"[=]",ls,1⊑¨l,⟨⟩⟩Zns ng
+  exc←⟨"{~}",e,eF,⊏met⟩Zns ng
+  pi←(DI ng∊p)Diff met∾○⊏exc
+  pur←pi≍pF⊏˜p⊐pi⊑ng
+  a←met∾˘exc∾˘pur 
+  sts←⟨⟩
+  {
+    vz←⋈⊑𝕩
+    {
+      vz∾↩i_←vz Diff˜∊⟜(⊏a)⊸/(⊏𝕩)+⟨1‿1,1‿0,1‿¯1,0‿1,0‿¯1,¯1‿1,¯1‿0,¯1‿¯1⟩
+      (1↓𝕩)∾i_
+    }_while_(0<≠)⋈⊑𝕩
+    sts∾↩⟨vz⟩
+    𝕩 Diff vz
+  }_while_(0<≠)⊏a
+  sts≍{(1⊏a)⊏˜𝕩⊐˜⊏a}¨sts
 }
+  
 
+stdout←""
+stderr←""
 
 g←Grid"    ======================================
 @>@[H>d.>l>l>l...>,>_>r.....>l...>r>l>d>_.]
@@ -157,7 +145,12 @@ g←Grid"    ======================================
 # testing function
 T←{
   ng‿l←Lens 𝕩
-  met←⟨"[=]",⊑¨l,⟨⟩⟩ Zones ng
-  exc←⟨"{~}",e,∾met⟩ Zones ng
-  met≍○<exc
+  •Show ng
+  •Show l
+  ls←⊑¨l
+  # met←⟨"[=]",ls,1⊑¨l,⟨⟩⟩ Zns ng
+  # exc←⟨"{~}",e,eF,⊏met⟩ Zns ng
+  # pur←(DI ng∊".o0OQ@")Diff met∾○∾exc
+  Stnst 𝕩
 }
+
