@@ -106,16 +106,10 @@ eF←⟨
 ⟩
 p←".o0OQ@"
 pF←⟨0>˜⊣, ⊣, 0⊸⊣, ⌊∘÷, 1-˜⊣, 0=⊣⟩
-# table of all stations in a grid, grouped together
+# stations grouped together
 nb←⟨1‿1,1‿0,1‿¯1,0‿1,0‿¯1,¯1‿1,¯1‿0,¯1‿¯1⟩
 Stn←{
-  ng‿l←Lens 𝕩
-  ls←⊑¨l
-  met←⟨"[=]",ls,1⊑¨l,⟨⟩⟩Zns ng
-  exc←⟨"{~}",e,eF,⊏met⟩Zns ng
-  pi←(DI ng∊p)Diff met∾○⊏exc
-  pur←pi≍pF⊏˜p⊐pi⊑ng
-  a←met∾˘exc∾˘pur 
+  𝕊 a:
   sts←⟨⟩
   {
     vz←⋈⊑𝕩
@@ -131,16 +125,35 @@ Stn←{
 
 # single station connections
 Conn←{
-  p‿s 𝕊 g:
+  s‿g 𝕊 p:
   t←"*[]={}~"⊸∾¨⟨"\#", "|v", "/#", "->", "-<", "/#", "|^", "\#"⟩
   ps←{𝕊 d‿c:d++⟜d _while_{⊑c∊˜g⊑˜𝕩+d}p}¨(nb⋈¨t)/˜∨´¨t=g⊑˜nb+<p
   ps Inter s
 }
 
+# connections for all stations
+Aco←{
+  s 𝕊 g:
+  s∾˜(</)˘((∾⟨∾⊏s,g⟩⊸Conn¨)¨∨´∘∊⌜⊢)⊏s
+}
+
+# interpreter
+In←{
+  ng‿l←Lens 𝕩
+  ls←⊑¨l
+  met←⟨"[=]",ls,1⊑¨l,⟨⟩⟩Zns ng
+  exc←⟨"{~}",e,eF,⊏met⟩Zns ng
+  pi←(DI ng∊p)Diff met∾○⊏exc
+  pur←pi≍pF⊏˜p⊐pi⊑ng
+  a←met∾˘exc∾˘pur 
+  (Stn a) Aco ng
+}
+
 stdout←""
 stderr←""
 
-g←Grid"    ======================================
+g←Grid"
+    ======================================
 @>@[H>d.>l>l>l...>,>_>r.....>l...>r>l>d>_.]
     ======================================
     | |  | | |    | | |      |    | | | |
@@ -159,7 +172,5 @@ T←{
   #met←⟨"[=]",ls,1⊑¨l,⟨⟩⟩ Zns ng
   #exc←⟨"{~}",e,eF,⊏met⟩ Zns ng
   #pur←(DI ng∊".o0OQ@")Diff met∾○∾exc
-  s←Stn 𝕩
-  ⟨⊑⊑s,∾⊏s⟩ Conn g
 }
 
