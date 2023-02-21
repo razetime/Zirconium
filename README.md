@@ -10,9 +10,13 @@ My main goal here is to make sure I can at the very least run the examples corre
 expected, and useful errors will be sparse.
 
 ## Running
-The interpreter is incomplete, and does not work on files yet.
+Cloning and installing [CBQN](https://github.com/dzaima/CBQN/) will let you run the current commit.
 
-Cloning and install [CBQN](https://github.com/dzaima/CBQN/) will let you run the current commit.
+```
+cbqn Zirconium.bqn file.zc
+```
+
+Heder functionality is coming soon.
 
 ## Ideas
 It works on the basis of creating and manipulating stations to dispatch drones via tunnels during every tick of time, which corresponds to a move.
