@@ -159,6 +159,7 @@ Run←{
 # interpreter
 In←{
   ng‿l←Lens Grid 𝕩
+  l∾↩𝕨
   met←⟨"[=]",⊑¨l,1⊑¨l,⟨⟩⟩Zns ng
   exc←⟨"{~}",e,eF,⊏met⟩Zns ng
   pi←(DI ng∊p)Diff met∾○⊏exc
@@ -167,4 +168,4 @@ In←{
   Run (Stn a) Aco ng # run the parsed graph
 }
 
-In •FChars ⊑•args
+{f‿h:(ILen¨•FLines h)In•FChars f;⟨⟩In•FChars⊑𝕩}•args
