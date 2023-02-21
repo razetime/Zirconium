@@ -13,7 +13,7 @@ expected, and useful errors will be sparse.
 Cloning and installing [CBQN](https://github.com/dzaima/CBQN/) will let you run the current commit.
 
 ```
-cbqn Zirconium.bqn file.zc
+cbqn Zirconium.bqn file.zc [header.zch]
 ```
 
 Heder functionality is coming soon.
