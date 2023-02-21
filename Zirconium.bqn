@@ -49,7 +49,7 @@ ILen←{
   tokens←{
     "+": +; "-": -; "*": ×; "/": Div;
     "=": =; "N": 'n'; "K": 'k';
-    ∧´((𝕩≥'0')∧𝕩≤'9')?10⊸×⊸+´𝕩-'0';
+    ∧´((𝕩≥'0')∧𝕩≤'9')?10⊸×⊸+˜´⌽𝕩-'0';
     •Show"Invalid lens instruction '"∾𝕩∾"' in '"∾prg∾"'",•Exit@
   }¨prg⊔˜1-˜+`(prg∊"+-*/=")∨((⊢∧⊢≠»)prg∊'0'+↕10)∨prg∊"NK"
   # dzaima
@@ -89,25 +89,25 @@ ZnS←{
   ret(∊⟜s⊑⟜g)⊸/↩
   ret≍f⊏˜s⊐ret⊑g
 }
-
-# zone function data
-# w←N, 𝕩←K
-e←"?!%&`_;"
+,
+# zone ,function data
+# w←N, ,𝕩←K
+e←"?!%&,`_;"
 eF←⟨
-  {𝕊:@-˜⊑•GetLine@}
-  {"Program has ended."!𝕨>0}
-  {•Show "giving output"‿𝕨,0⊣•term.OutRaw⋈@+256|𝕨}
-  {0⊣stderr∾↩@+256|𝕨}
-  {0⊣stdout∾↩•Show 𝕨}
-  {𝕊:(∧´≥⊸'0'∧≤⟜'9')◶⟨
+  {𝕨>0?,@-˜⊑•GetLine@;0}
+  {𝕨>0?"Program has ended."!𝕨>0;0}
+  {𝕨>0?0⊣•term.OutRaw⋈@+256|𝕨;0}
+  {𝕨>0?0⊣stderr∾↩@+256|𝕨;0}
+  {𝕨>0?0⊣stdout∾↩•Show 𝕨;0}
+  {𝕨>0?(∧´≥⊸'0'∧≤⟜'9')◶⟨
       {•Show"Invalid number '"∾𝕩∾"'",•Exit@}
       10⊸×⊸+´
-    ⟩•GetLine@
+    ⟩•GetLine@; 0
   }
   {0⊣•Delay 𝕨÷1000}
 ⟩
 p←".o0OQ@"
-pF←⟨0>˜⊣, ⊣, 0⊸⊣, Div, 1-˜⊣, 0=⊣⟩
+pF←⟨0<⊣, ⊣, 0, Div, 1-˜⊣, 0=⊣⟩
 # stations grouped together
 nb←⟨1‿1,1‿0,1‿¯1,0‿1,0‿¯1,¯1‿1,¯1‿0,¯1‿¯1⟩
 Stn←{
@@ -137,15 +137,17 @@ Conn←{
 Aco←{𝕨∾˜(</)˘((∾⟨∾⊏𝕨,𝕩⟩⊸Conn¨)¨∨´∘∊⌜⊢)⊏𝕨}
 
 Run←{
+  #{•Show 𝕩⊏˜⍋(⊑1⊸⊑)˘𝕩}¨{
   {
     n←((≠𝕩)⥊0){i‿·‿f‿d 𝕊 𝕩:(+´f{𝕩𝕎≠i}¨d)⊸+⌾(i⊸⊏)𝕩}˝𝕩
     n∾˜˘¯1↓˘𝕩 
-  }⍟2 ⍉∾⟜(0¨∘⊏)𝕩
+  }⍟(↕20) ⍉∾⟜(0¨∘⊏)𝕩
+  @
 }
 
 # interpreter
 In←{
-  ng‿l←Lens 𝕩
+  ng‿l←Lens Grid 𝕩
   ls←⊑¨l
   met←⟨"[=]",ls,1⊑¨l,⟨⟩⟩Zns ng
   exc←⟨"{~}",e,eF,⊏met⟩Zns ng
@@ -158,8 +160,7 @@ In←{
 stdout←""
 stderr←""
 
-g←Grid"(                               )
-    ======================================
+g←"   ======================================
 @>@[H>d.>l>l>l...>,>_>r.....>l...>r>l>d>_.]
     ======================================
     | |  | | |    | | |      |    | | | |
@@ -179,4 +180,5 @@ T←{
   #exc←⟨"{~}",e,eF,⊏met⟩ Zns ng
   #pur←(DI ng∊".o0OQ@")Diff met∾○∾exc
 }
+In g
 
